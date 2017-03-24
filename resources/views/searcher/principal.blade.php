@@ -2,8 +2,9 @@
 
 @section('content')
 
-<div class="container">
-	<div id="word"><span class="spang">G</span><span class="spano">o</span><span class="spano2">o</span><span class="spang2">g</span><span class="
+<div id="rectangle" style="display: none;"></div>
+<div class="container" >
+	<div id="word" style="position: relative;"><span class="spang">G</span><span class="spano">o</span><span class="spano2">o</span><span class="spang2">g</span><span class="
 	    spanl">l</span><span class="spane">e</span>
 	</div>
 	    <div class="search">
@@ -29,40 +30,70 @@
 @section('scripts')
 
 <script type="text/javascript">
-
-var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
+var bandera = false;
 
 $( "#searchTerm" ).keyup(function() 
 {
-  	//$('.container').empty();
   	doSearch();
 });
 
+function doMovimiento()
+{
+
+        $('.container').animate({'marginTop':"-=200px",
+        							'marginLeft' : "-=100px"
+    							});
+        $('#searchTerm').animate({'marginTop':"-=40px",
+        						  'marginLeft' : "-=200px"
+    							});
+
+        $('#word').animate({
+        	'marginTop' : "+=50px",
+        	'marginLeft' : "-=300px",
+        	'font-size': "3em"
+        });
+
+        $('.btn-search').hide();
+        $('.btn-luck').hide();
+        $('#rectangle').show();
+	
+
+	bandera = true;
+}
+
+
 function doSearch()
 {
-  	/*$(".container").append($("<div>", {
-                    class: "col-lg-12 ",
-                    id: "titulo_tipoPedido",
-                    html:"<span class='text-blue'>hola</span>"
-                }));*/
-
+	 $(".displayResults").html("");
   	var query = $("#searchTerm").val()
 
-      $.ajax({
-      url: "https://api.chucknorris.io/jokes/search?query={query}",	
-      type: 'POST',
-      data: {_token: CSRF_TOKEN, query: $("#searchTerm").val()},
-      //data: {_token: CSRF_TOKEN, query:query},
-      dataType: 'JSON',
-      success: function (data)
-      {
-        	console.log(data);   
-      }});
+  	if (query.length >= 3) 
+  	{
+  		if (bandera == false) 
+  		{
+  			doMovimiento();
+  		};
+      	$.ajax({
+      	url: "https://api.chucknorris.io/jokes/search?query="+ query,	
+      	type: 'GET',
+      	success: function (entry) 
+      	{
+      		console.log(entry);
+      		for(var i = 0; i < entry.result.length; i++)
+      		{	
+        		$(".displayResults").append("<div class=\"searchResult\"><a href=\"" + entry.result[i].url + "\" target=\"_blank\"><h3>" + entry.result[i].id + "</h3></a><p class=\"resultLink\">" + entry.result[i].url + "</p><p>" + entry.result[i].value + "</p></div>");
+      		}
+    	}
+  	});
+
+  	};
+
 }
 
 // random button
 $(".btn-luck").on("click", function()
 {
+	$(".displayResults").html("");
 	$.getJSON("https://api.chucknorris.io/jokes/random", function(json)
 	{
     	$(".displayResults").append("<div class=\"searchResult\"><a href=\"" + 
